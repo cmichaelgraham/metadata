@@ -11,7 +11,7 @@ module.exports = {
   comments: false,
   compact: false,
   code:true,
-  presets: ['es2015', 'stage-2'],
+  presets: [ 'es2015', 'react', 'stage-0'],
   plugins: [
     'syntax-flow',
     'transform-decorators-legacy',
@@ -21,6 +21,7 @@ module.exports = {
         suppressModulePath: true,
         suppressComments: false,
         memberOutputFilter: /^_.*/
-    }]
+    }],
+    'transform-es2015-modules-amd'
   ]
 };
