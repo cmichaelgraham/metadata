@@ -21,7 +21,6 @@ module.exports = {
         suppressModulePath: true,
         suppressComments: false,
         memberOutputFilter: /^_.*/
-    }],
-    'transform-es2015-modules-amd'
+    }]
   ]
 };

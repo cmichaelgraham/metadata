@@ -43,21 +43,27 @@ gulp.task('build-es6', function () {
     .pipe(gulp.dest(paths.output + 'es6'));
 });
 
+var commonjsCompilerOptions = JSON.parse(JSON.stringify(compilerOptions));
+commonjsCompilerOptions.plugins.push('transform-es2015-modules-commonjs');
 gulp.task('build-commonjs', function () {
   return gulp.src(paths.output + jsName)
-    .pipe(to5(assign({}, compilerOptions)))
+    .pipe(to5(assign({}, commonjsCompilerOptions)))
     .pipe(gulp.dest(paths.output + 'commonjs'));
 });
 
+var amdCompilerOptions = JSON.parse(JSON.stringify(compilerOptions));
+amdCompilerOptions.plugins.push('transform-es2015-modules-amd');
 gulp.task('build-amd', function () {
   return gulp.src(paths.output + jsName)
-    .pipe(to5(assign({}, compilerOptions)))
+    .pipe(to5(assign({}, amdCompilerOptions)))
     .pipe(gulp.dest(paths.output + 'amd'));
 });
 
+var systemjsCompilerOptions = JSON.parse(JSON.stringify(compilerOptions));
+systemjsCompilerOptions.plugins.push('transform-es2015-modules-systemjs');
 gulp.task('build-system', function () {
   return gulp.src(paths.output + jsName)
-    .pipe(to5(assign({}, compilerOptions)))
+    .pipe(to5(assign({}, systemjsCompilerOptions)))
     .pipe(gulp.dest(paths.output + 'system'));
 });
 
