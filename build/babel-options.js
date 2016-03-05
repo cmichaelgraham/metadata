@@ -11,7 +11,7 @@ module.exports = {
   comments: false,
   compact: false,
   code:true,
-  presets: [ 'es2015', 'react', 'stage-0'],
+  presets: [ 'es2015', 'stage-1'],
   plugins: [
     'syntax-flow',
     'transform-decorators-legacy',

@@ -1,6 +1,8 @@
 declare module 'aurelia-metadata' {
   import 'core-js';
-  import { PLATFORM }  from 'aurelia-pal';
+  import {
+    PLATFORM
+  } from 'aurelia-pal';
   
   /**
   * Helpers for working with metadata on functions.

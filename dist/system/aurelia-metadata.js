@@ -1,116 +1,12 @@
-System.register(['core-js', 'aurelia-pal'], function (_export) {
-  'use strict';
+'use strict';
 
-  var PLATFORM, theGlobal, emptyMetadata, metadataContainerKey, metadata, originStorage, unknownOrigin, Origin;
+System.register(['core-js', 'aurelia-pal'], function (_export, _context) {
+  var PLATFORM, _extends, _createClass, theGlobal, emptyMetadata, metadataContainerKey, metadata, originStorage, unknownOrigin, Origin;
 
-  var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-  _export('decorators', decorators);
-
-  _export('deprecated', deprecated);
-
-  _export('mixin', mixin);
-
-  _export('protocol', protocol);
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function decorators() {
-    for (var _len = arguments.length, rest = Array(_len), _key = 0; _key < _len; _key++) {
-      rest[_key] = arguments[_key];
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
     }
-
-    var applicator = function applicator(target, key, descriptor) {
-      var i = rest.length;
-
-      if (key) {
-        descriptor = descriptor || {
-          value: target[key],
-          writable: true,
-          configurable: true,
-          enumerable: true
-        };
-
-        while (i--) {
-          descriptor = rest[i](target, key, descriptor) || descriptor;
-        }
-
-        Object.defineProperty(target, key, descriptor);
-      } else {
-        while (i--) {
-          target = rest[i](target) || target;
-        }
-      }
-
-      return target;
-    };
-
-    applicator.on = applicator;
-    return applicator;
-  }
-
-  function deprecated(optionsOrTarget, maybeKey, maybeDescriptor) {
-    function decorator(target, key, descriptor) {
-      var methodSignature = target.constructor.name + '#' + key;
-      var options = maybeKey ? {} : optionsOrTarget || {};
-      var message = 'DEPRECATION - ' + methodSignature;
-
-      if (typeof descriptor.value !== 'function') {
-        throw new SyntaxError('Only methods can be marked as deprecated.');
-      }
-
-      if (options.message) {
-        message += ' - ' + options.message;
-      }
-
-      return _extends({}, descriptor, {
-        value: function deprecationWrapper() {
-          if (options.error) {
-            throw new Error(message);
-          } else {
-            console.warn(message);
-          }
-
-          return descriptor.value.apply(this, arguments);
-        }
-      });
-    }
-
-    return maybeKey ? decorator(optionsOrTarget, maybeKey, maybeDescriptor) : decorator;
-  }
-
-  function mixin(behavior) {
-    var instanceKeys = Object.keys(behavior);
-
-    function _mixin(possible) {
-      var decorator = function decorator(target) {
-        var resolvedTarget = typeof target === 'function' ? target.prototype : target;
-
-        for (var _iterator = instanceKeys, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
-          var _ref;
-
-          if (_isArray) {
-            if (_i >= _iterator.length) break;
-            _ref = _iterator[_i++];
-          } else {
-            _i = _iterator.next();
-            if (_i.done) break;
-            _ref = _i.value;
-          }
-
-          var property = _ref;
-
-          Object.defineProperty(resolvedTarget, property, {
-            value: behavior[property],
-            writable: true
-          });
-        }
-      };
-
-      return possible ? decorator(possible) : decorator;
-    }
-
-    return _mixin;
   }
 
   function alwaysValid() {
@@ -154,37 +50,47 @@ System.register(['core-js', 'aurelia-pal'], function (_export) {
     };
   }
 
-  function protocol(name, options) {
-    options = ensureProtocolOptions(options);
-
-    var result = function result(target) {
-      var resolvedTarget = typeof target === 'function' ? target.prototype : target;
-
-      options.compose(resolvedTarget);
-      result.assert(resolvedTarget);
-
-      Object.defineProperty(resolvedTarget, 'protocol:' + name, {
-        enumerable: false,
-        configurable: false,
-        writable: false,
-        value: true
-      });
-    };
-
-    result.validate = createProtocolValidator(options.validate);
-    result.assert = createProtocolAsserter(name, options.validate);
-
-    return result;
-  }
-
   return {
     setters: [function (_coreJs) {}, function (_aureliaPal) {
       PLATFORM = _aureliaPal.PLATFORM;
     }],
     execute: function () {
+      _extends = Object.assign || function (target) {
+        for (var i = 1; i < arguments.length; i++) {
+          var source = arguments[i];
+
+          for (var key in source) {
+            if (Object.prototype.hasOwnProperty.call(source, key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+
+        return target;
+      };
+
+      _createClass = function () {
+        function defineProperties(target, props) {
+          for (var i = 0; i < props.length; i++) {
+            var descriptor = props[i];
+            descriptor.enumerable = descriptor.enumerable || false;
+            descriptor.configurable = true;
+            if ("value" in descriptor) descriptor.writable = true;
+            Object.defineProperty(target, descriptor.key, descriptor);
+          }
+        }
+
+        return function (Constructor, protoProps, staticProps) {
+          if (protoProps) defineProperties(Constructor.prototype, protoProps);
+          if (staticProps) defineProperties(Constructor, staticProps);
+          return Constructor;
+        };
+      }();
+
       theGlobal = PLATFORM.global;
       emptyMetadata = Object.freeze({});
       metadataContainerKey = '__metadata__';
+
 
       if (typeof theGlobal.Reflect === 'undefined') {
         theGlobal.Reflect = {};
@@ -212,27 +118,43 @@ System.register(['core-js', 'aurelia-pal'], function (_export) {
         };
       }
 
-      metadata = {
+      interface MetadataType {
+        resource: string;
+
+        paramTypes: string;
+
+        properties: string;
+
+        get(metadataKey: string, target: Function, targetKey: string): Object;
+
+        getOwn(metadataKey: string, target: Function, targetKey: string): Object;
+
+        define(metadataKey: string, metadataValue: Object, target: Function, targetKey: string): void;
+
+        getOrCreateOwn(metadataKey: string, Type: Function, target: Function, targetKey: string): Object;
+      }
+
+      _export('metadata', metadata = {
         resource: 'aurelia:resource',
         paramTypes: 'design:paramtypes',
         properties: 'design:properties',
-        get: function get(metadataKey, target, targetKey) {
+        get: function get(metadataKey: string, target: Function, targetKey: string) {
           if (!target) {
             return undefined;
           }
           var result = metadata.getOwn(metadataKey, target, targetKey);
           return result === undefined ? metadata.get(metadataKey, Object.getPrototypeOf(target), targetKey) : result;
         },
-        getOwn: function getOwn(metadataKey, target, targetKey) {
+        getOwn: function getOwn(metadataKey: string, target: Function, targetKey: string) {
           if (!target) {
             return undefined;
           }
           return Reflect.getOwnMetadata(metadataKey, target, targetKey);
         },
-        define: function define(metadataKey, metadataValue, target, targetKey) {
+        define: function define(metadataKey: string, metadataValue: Object, target: Function, targetKey: string) {
           Reflect.defineMetadata(metadataKey, metadataValue, target, targetKey);
         },
-        getOrCreateOwn: function getOrCreateOwn(metadataKey, Type, target, targetKey) {
+        getOrCreateOwn: function getOrCreateOwn(metadataKey: string, Type: Function, target: Function, targetKey: string) {
           var result = metadata.getOwn(metadataKey, target, targetKey);
 
           if (result === undefined) {
@@ -242,54 +164,210 @@ System.register(['core-js', 'aurelia-pal'], function (_export) {
 
           return result;
         }
-      };
+      });
 
       _export('metadata', metadata);
 
       originStorage = new Map();
       unknownOrigin = Object.freeze({ moduleId: undefined, moduleMember: undefined });
 
-      Origin = (function () {
-        function Origin(moduleId, moduleMember) {
+      _export('Origin', Origin = function () {
+        function Origin(moduleId: string, moduleMember: string) {
           _classCallCheck(this, Origin);
 
           this.moduleId = moduleId;
           this.moduleMember = moduleMember;
         }
 
-        Origin.get = function get(fn) {
-          var origin = originStorage.get(fn);
+        _createClass(Origin, null, [{
+          key: 'get',
+          value: function get(fn: Function) {
+            var origin = originStorage.get(fn);
 
-          if (origin === undefined) {
-            PLATFORM.eachModule(function (key, value) {
-              for (var _name in value) {
-                var exp = value[_name];
-                if (exp === fn) {
-                  originStorage.set(fn, origin = new Origin(key, _name));
+            if (origin === undefined) {
+              PLATFORM.eachModule(function (key, value) {
+                for (var name in value) {
+                  var exp = value[name];
+                  if (exp === fn) {
+                    originStorage.set(fn, origin = new Origin(key, name));
+                    return true;
+                  }
+                }
+
+                if (value === fn) {
+                  originStorage.set(fn, origin = new Origin(key, 'default'));
                   return true;
                 }
-              }
+              });
+            }
 
-              if (value === fn) {
-                originStorage.set(fn, origin = new Origin(key, 'default'));
-                return true;
-              }
-            });
+            return origin || unknownOrigin;
           }
-
-          return origin || unknownOrigin;
-        };
-
-        Origin.set = function set(fn, origin) {
-          originStorage.set(fn, origin);
-        };
+        }, {
+          key: 'set',
+          value: function set(fn: Function, origin: Origin) {
+            originStorage.set(fn, origin);
+          }
+        }]);
 
         return Origin;
-      })();
+      }());
 
       _export('Origin', Origin);
 
-      protocol.create = function (name, options) {
+      interface DecoratorApplicator {
+        on(target: any, key?: string, descriptor?: Object): any
+      }
+
+      function decorators(): DecoratorApplicator {
+        for (var _len = arguments.length, rest = Array(_len), _key = 0; _key < _len; _key++) {
+          rest[_key] = arguments[_key];
+        }
+
+        var applicator = function applicator(target, key, descriptor) {
+          var i = rest.length;
+
+          if (key) {
+            descriptor = descriptor || {
+              value: target[key],
+              writable: true,
+              configurable: true,
+              enumerable: true
+            };
+
+            while (i--) {
+              descriptor = rest[i](target, key, descriptor) || descriptor;
+            }
+
+            Object.defineProperty(target, key, descriptor);
+          } else {
+            while (i--) {
+              target = rest[i](target) || target;
+            }
+          }
+
+          return target;
+        };
+
+        applicator.on = applicator;
+        return applicator;
+      }
+
+      _export('decorators', decorators);
+
+      interface DeprecatedOptions {
+        message: string;
+
+        error: bool;
+      }
+
+      function deprecated(optionsOrTarget?: DeprecatedOptions, maybeKey?: string, maybeDescriptor?: Object): any {
+        function decorator(target, key, descriptor) {
+          var methodSignature = target.constructor.name + '#' + key;
+          var options = maybeKey ? {} : optionsOrTarget || {};
+          var message = 'DEPRECATION - ' + methodSignature;
+
+          if (typeof descriptor.value !== 'function') {
+            throw new SyntaxError('Only methods can be marked as deprecated.');
+          }
+
+          if (options.message) {
+            message += ' - ' + options.message;
+          }
+
+          return _extends({}, descriptor, {
+            value: function deprecationWrapper() {
+              if (options.error) {
+                throw new Error(message);
+              } else {
+                console.warn(message);
+              }
+
+              return descriptor.value.apply(this, arguments);
+            }
+          });
+        }
+
+        return maybeKey ? decorator(optionsOrTarget, maybeKey, maybeDescriptor) : decorator;
+      }
+
+      _export('deprecated', deprecated);
+
+      function mixin(behavior: Object): any {
+        var instanceKeys = Object.keys(behavior);
+
+        function _mixin(possible) {
+          var decorator = function decorator(target) {
+            var resolvedTarget = typeof target === 'function' ? target.prototype : target;
+
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+              for (var _iterator = instanceKeys[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                var property = _step.value;
+
+                Object.defineProperty(resolvedTarget, property, {
+                  value: behavior[property],
+                  writable: true
+                });
+              }
+            } catch (err) {
+              _didIteratorError = true;
+              _iteratorError = err;
+            } finally {
+              try {
+                if (!_iteratorNormalCompletion && _iterator.return) {
+                  _iterator.return();
+                }
+              } finally {
+                if (_didIteratorError) {
+                  throw _iteratorError;
+                }
+              }
+            }
+          };
+
+          return possible ? decorator(possible) : decorator;
+        }
+
+        return _mixin;
+      }
+      _export('mixin', mixin);
+
+      interface ProtocolOptions {
+        validate?(target: any): string | bool;
+
+        compose?(target: any): void;
+      }
+
+      function protocol(name: string, options?: (target: any) => string | bool | ProtocolOptions): any {
+        options = ensureProtocolOptions(options);
+
+        var result = function result(target) {
+          var resolvedTarget = typeof target === 'function' ? target.prototype : target;
+
+          options.compose(resolvedTarget);
+          result.assert(resolvedTarget);
+
+          Object.defineProperty(resolvedTarget, 'protocol:' + name, {
+            enumerable: false,
+            configurable: false,
+            writable: false,
+            value: true
+          });
+        };
+
+        result.validate = createProtocolValidator(options.validate);
+        result.assert = createProtocolAsserter(name, options.validate);
+
+        return result;
+      }
+
+      _export('protocol', protocol);
+
+      protocol.create = function (name: string, options?: (target: any) => string | bool | ProtocolOptions): Function {
         options = ensureProtocolOptions(options);
         var hidden = 'protocol:' + name;
         var result = function result(target) {
